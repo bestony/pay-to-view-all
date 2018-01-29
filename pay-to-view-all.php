@@ -174,7 +174,7 @@ function ptva_get_qrcode(){
         update_post_meta($id,'paid_qrcode_cache_'.$user,$image.",".time());
     }else{
         $data = explode(",",$cacheData);
-        if ((time()-$data[1]) > 3600){
+        if ((time()-$data[1]) > 5400){
             $image = ptva_request_qrcode($id,$user);
             update_post_meta($id,'paid_qrcode_cache_'.$user,$image.",".time());
         }else{
