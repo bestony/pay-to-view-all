@@ -47,12 +47,12 @@ function ptva_submenu_page_callback(){
 <h2>付费阅读配置</h2>
 <?php
 if ($_POST['update_options']=='true') {//若提交了表单，则保存变量
-    update_option('ptva_merchant_id', $_POST['ptva_merchant_id']);
-    update_option('ptva_merchant_key', $_POST['ptva_merchant_key']);
-    update_option('ptva_post_fee', $_POST['ptva_post_fee']);
-    update_option('ptva_summary_number', $_POST['ptva_summary_number']);
+    update_option('ptva_merchant_id', sanitize_text_field($_POST['ptva_merchant_id']));
+    update_option('ptva_merchant_key', sanitize_text_field($_POST['ptva_merchant_key']));
+    update_option('ptva_post_fee', sanitize_text_field($_POST['ptva_post_fee']));
+    update_option('ptva_summary_number', sanitize_text_field($_POST['ptva_summary_number']));
     update_option('ptva_mode', $_POST['ptva_mode']);
-    check_admin_referer( 'pay_to_view_all_field' );
+    wp_verify_nonce( $_POST['pay_to_view_all_field'] );
     echo '<div id="message" class="updated below-h2"><p>设置保存成功!</p></div>';//保存完毕显示文字提示
 }
 $mode = get_option('ptva_mode')?get_option('ptva_mode'):"white";
@@ -73,19 +73,19 @@ $mode = get_option('ptva_mode')?get_option('ptva_mode'):"white";
             </tr>
             <tr>
                 <th scope="row">商户ID:</th>
-                <td><input type="text" name="ptva_merchant_id" id="ptva_merchant_id" value="<?php echo get_option('ptva_merchant_id'); ?>" /></td>
+                <td><input type="text" name="ptva_merchant_id" id="ptva_merchant_id" value="<?php  esc_attr_e(get_option('ptva_merchant_id')); ?>" /></td>
             </tr>
             <tr>
                 <th scope="row">商户 Key:</th>
-                <td><input type="text" name="ptva_merchant_key" id="ptva_merchant_key" value="<?php echo get_option('ptva_merchant_key'); ?>" /></td>
+                <td><input type="text" name="ptva_merchant_key" id="ptva_merchant_key" value="<?php esc_attr_e(get_option('ptva_merchant_key')); ?>" /></td>
             </tr>
             <tr>
                 <th scope="row">文章单价:</th>
-                <td><input type="text" name="ptva_post_fee" id="ptva_post_fee" value="<?php echo get_option('ptva_post_fee'); ?>" /></td>
+                <td><input type="text" name="ptva_post_fee" id="ptva_post_fee" value="<?php esc_attr_e(get_option('ptva_post_fee')); ?>" /></td>
             </tr>
             <tr>
                 <th scope="row">截断长短:</th>
-                <td><input type="text" name="ptva_summary_number" id="ptva_summary_number" value="<?php echo get_option('ptva_summary_number'); ?>" /></td>
+                <td><input type="text" name="ptva_summary_number" id="ptva_summary_number" value="<?php esc_attr_e(get_option('ptva_summary_number')); ?>" /></td>
             </tr>
     </table>
     <p><input type="submit" class="button-primary" name="admin_options" value="保存配置"/></p>
