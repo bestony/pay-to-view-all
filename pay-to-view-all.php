@@ -90,7 +90,6 @@ $mode = get_option('ptva_mode')?get_option('ptva_mode'):"white";
 </form>
 </div>
 <?php
-//add_action('admin_menu', 'customSetting');
 }
 
 /**
