@@ -153,7 +153,7 @@ function ptva_request_qrcode($id,$user){
         'toobject' => true
     ]);
 
-    $order_id = 'pay_to_view_all'.$id.'_'.time();
+    $order_id = 'test_pay_to_view_all'.$id.'_'.time();
     $order_title ='付费阅读_'.get_the_title($id);
     $attach = $id ."+".$user;
 
@@ -169,15 +169,15 @@ function ptva_get_qrcode(){
     $id = get_the_ID();
     $user = get_current_user_id();
 
-    $cacheData = get_post_meta($id,'paid_qrcode_cache',true);
+    $cacheData = get_post_meta($id,'paid_qrcode_cache_'.$user,true);
     if($cacheData === '0'){
         $image = ptva_request_qrcode($id,$user);
-        update_post_meta($id,'paid_qrcode_cache',$image.",".time());
+        update_post_meta($id,'paid_qrcode_cache_'.$user,$image.",".time());
     }else{
         $data = explode(",",$cacheData);
         if ((time()-$data[1]) > 3600){
             $image = ptva_request_qrcode($id,$user);
-            update_post_meta($id,'paid_qrcode_cache',$image.",".time());
+            update_post_meta($id,'paid_qrcode_cache_'.$user,$image.",".time());
         }else{
             $image = $data[0];
         }
@@ -218,7 +218,6 @@ function ptva_add_meta_to_all_post() {
     foreach($posts_array as $post_array)
     {
         add_post_meta($post_array->ID, 'post_paid_user', '0',true);
-        add_post_meta($post_array->ID, 'paid_qrcode_cache', '0',true);
     }
 }
 register_activation_hook( __FILE__, 'ptva_add_meta_to_all_post' );
