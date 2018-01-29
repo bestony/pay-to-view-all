@@ -51,13 +51,24 @@ if ($_POST['update_options']=='true') {//若提交了表单，则保存变量
     update_option('ptva_merchant_key', $_POST['ptva_merchant_key']);
     update_option('ptva_post_fee', $_POST['ptva_post_fee']);
     update_option('ptva_summary_number', $_POST['ptva_summary_number']);
+    update_option('ptva_mode', $_POST['ptva_mode']);
     echo '<div id="message" class="updated below-h2"><p>设置保存成功!</p></div>';//保存完毕显示文字提示
 }
+$mode = get_option('ptva_mode')?get_option('ptva_mode'):"white";
 //下面开始界面表单
 ?>
 <form method="POST" action="">
     <input type="hidden" name="update_options" value="true" />
     <table class="form-table">
+            <tr>
+                <th scope="row">模式:</th>
+                <td>
+                <select name="ptva_mode">
+                    <option value="white" <?php selected($mode,'white') ?>>「白名单模式」：全站付费，指定文章免费</option>
+                    <option value="black" <?php selected($mode,'black') ?>>「黑名单模式」：全站免费，指定文章付费</option>
+                </select>
+                </td>
+            </tr>
             <tr>
                 <th scope="row">商户ID:</th>
                 <td><input type="text" name="ptva_merchant_id" id="ptva_merchant_id" value="<?php echo get_option('ptva_merchant_id'); ?>" /></td>
@@ -87,21 +98,25 @@ if ($_POST['update_options']=='true') {//若提交了表单，则保存变量
  */
 function ptva_prevent_unpay_user( $content ) {
     $summary_number = get_option('ptva_summary_number');
-    if(is_home()){
-        return wp_trim_words($content,$summary_number,"...<hr>请<strong><a href='/wp-login.php'>登陆</a></strong>并支付后查看更多内容");
-    }else{
-        if(is_user_logged_in()){
-            if(ptva_check_user_pay()){
-                return $content;
-            }else{
-                return wp_trim_words($content,$summary_number,"...<hr>".ptva_get_qrcode()."");
-            }
-        }else{
+    $mode = get_option('ptva_mode');
+    if ($mode == 'white'){
+        if(is_home()){
             return wp_trim_words($content,$summary_number,"...<hr>请<strong><a href='/wp-login.php'>登陆</a></strong>并支付后查看更多内容");
+        }else{
+            if(is_user_logged_in()){
+                if(ptva_check_user_pay()){
+                    return $content;
+                }else{
+                    return wp_trim_words($content,$summary_number,"...<hr>".ptva_get_qrcode()."");
+                }
+            }else{
+                return wp_trim_words($content,$summary_number,"...<hr>请<strong><a href='/wp-login.php'>登陆</a></strong>并支付后查看更多内容");
+            }
+
         }
-
+    }else{
+        return $content;
     }
-
 }
 add_filter( 'the_content', 'ptva_prevent_unpay_user' );
 
