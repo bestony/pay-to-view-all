@@ -153,7 +153,7 @@ function ptva_request_qrcode($id,$user){
         'toobject' => true
     ]);
 
-    $order_id = 'test_pay_to_view_all'.$id.'_'.time();
+    $order_id = 'pay_to_view_all'.$id.'_'.time();
     $order_title ='付费阅读_'.get_the_title($id);
     $attach = $id ."+".$user;
 
