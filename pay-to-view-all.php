@@ -47,13 +47,10 @@ function ptva_submenu_page_callback(){
 <h2>付费阅读配置</h2>
 <?php
 if ($_POST['update_options']=='true') {//若提交了表单，则保存变量
-    update_option('merchant_id', $_POST['merchant_id']);
-    update_option('merchant_key', $_POST['merchant_key']);
-    update_option('post_fee', $_POST['post_fee']);
-    //若值为空，则删除这行数据
-    if( empty($_POST['merchant_id']) ) delete_option('merchant_id' );
-    if( empty($_POST['merchant_key']) ) delete_option('merchant_key' );
-    if( empty($_POST['post_fee']) ) delete_option('post_fee' );
+    update_option('ptva_merchant_id', $_POST['ptva_merchant_id']);
+    update_option('ptva_merchant_key', $_POST['ptva_merchant_key']);
+    update_option('ptva_post_fee', $_POST['ptva_post_fee']);
+    update_option('ptva_summary_number', $_POST['ptva_summary_number']);
     echo '<div id="message" class="updated below-h2"><p>设置保存成功!</p></div>';//保存完毕显示文字提示
 }
 //下面开始界面表单
@@ -63,15 +60,19 @@ if ($_POST['update_options']=='true') {//若提交了表单，则保存变量
     <table class="form-table">
             <tr>
                 <th scope="row">商户ID:</th>
-                <td><input type="text" name="merchant_id" id="merchant_id" value="<?php echo get_option('merchant_id'); ?>" /></td>
+                <td><input type="text" name="ptva_merchant_id" id="ptva_merchant_id" value="<?php echo get_option('ptva_merchant_id'); ?>" /></td>
             </tr>
             <tr>
                 <th scope="row">商户 Key:</th>
-                <td><input type="text" name="merchant_key" id="merchant_key" value="<?php echo get_option('merchant_key'); ?>" /></td>
+                <td><input type="text" name="ptva_merchant_key" id="ptva_merchant_key" value="<?php echo get_option('ptva_merchant_key'); ?>" /></td>
             </tr>
             <tr>
                 <th scope="row">文章单价:</th>
-                <td><input type="text" name="post_fee" id="post_fee" value="<?php echo get_option('post_fee'); ?>" /></td>
+                <td><input type="text" name="ptva_post_fee" id="ptva_post_fee" value="<?php echo get_option('ptva_post_fee'); ?>" /></td>
+            </tr>
+            <tr>
+                <th scope="row">截断长短:</th>
+                <td><input type="text" name="ptva_summary_number" id="ptva_summary_number" value="<?php echo get_option('ptva_summary_number'); ?>" /></td>
             </tr>
     </table>
     <p><input type="submit" class="button-primary" name="admin_options" value="保存配置"/></p>
@@ -85,17 +86,18 @@ if ($_POST['update_options']=='true') {//若提交了表单，则保存变量
  * Core Function , Use to protect post form unpay visitor
  */
 function ptva_prevent_unpay_user( $content ) {
+    $summary_number = get_option('ptva_summary_number');
     if(is_home()){
-        return wp_trim_words($content,100,"...<hr>请<strong><a href='/wp-login.php'>登陆</a></strong>并支付后查看更多内容");
+        return wp_trim_words($content,$summary_number,"...<hr>请<strong><a href='/wp-login.php'>登陆</a></strong>并支付后查看更多内容");
     }else{
         if(is_user_logged_in()){
             if(ptva_check_user_pay()){
                 return $content;
             }else{
-                return wp_trim_words($content,100,"...<hr>".ptva_get_qrcode()."");
+                return wp_trim_words($content,$summary_number,"...<hr>".ptva_get_qrcode()."");
             }
         }else{
-            return wp_trim_words($content,100,"...<hr>请<strong><a href='/wp-login.php'>登陆</a></strong>并支付后查看更多内容");
+            return wp_trim_words($content,$summary_number,"...<hr>请<strong><a href='/wp-login.php'>登陆</a></strong>并支付后查看更多内容");
         }
 
     }
@@ -125,9 +127,9 @@ function ptva_check_user_pay(){
  * Generate QRCode From Payjs
  */
 function ptva_request_qrcode($id,$user){
-    $mid = get_option('merchant_id');
-    $mkey = get_option('merchant_key');
-    $amount = get_option('post_fee');
+    $mid = get_option('ptva_merchant_id');
+    $mkey = get_option('ptva_merchant_key');
+    $amount = get_option('ptva_post_fee');
     $path = get_site_url()."/pay_to_view_all";
     $payjs = new Payjs([
         'merchantid' => $mid,
@@ -154,12 +156,12 @@ function ptva_get_qrcode(){
 
     $cacheData = get_post_meta($id,'paid_qrcode_cache',true);
     if($cacheData === '0'){
-        $image = get_qrcode_from_payjs($id,$user);
+        $image = ptva_request_qrcode($id,$user);
         update_post_meta($id,'paid_qrcode_cache',$image.",".time());
     }else{
         $data = explode(",",$cacheData);
         if ((time()-$data[1]) > 3600){
-            $image = get_qrcode_from_payjs($id,$user);
+            $image = ptva_request_qrcode($id,$user);
             update_post_meta($id,'paid_qrcode_cache',$image.",".time());
         }else{
             $image = $data[0];
