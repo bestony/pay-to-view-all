@@ -182,6 +182,9 @@ function ptva_get_qrcode(){
         }
     }
 
+    if ($image == ''){
+        return "数据设置错误！";
+    }
 
     return '<div style="text-align:center"><P>支付查看剩下的内容</p><img src="'.$image.'" alt="付费码"><P>支付完成后，刷新页面即可查看全文。</p></div>';
 }
@@ -192,18 +195,34 @@ function ptva_get_qrcode(){
 add_action('init', 'ptva_pay_check');
 function ptva_pay_check() {
    if($_SERVER["REQUEST_URI"] == '/pay_to_view_all') {
-      $query_string =  $_POST['attach'];
-      $array = explode("+",$query_string);
+      if(ptva_checkSign($_POST)){
+        $query_string =  $_POST['attach'];
+        $array = explode("+",$query_string);
 
-      $postData = get_post_meta($array[0],'post_paid_user',true);
-      $postData = $postData.",".$array[1];
-      update_post_meta($array[0],'post_paid_user',$postData);
-      update_post_meta($array[0],'paid_qrcode_cache','0');
-      echo "ok";
+        $postData = get_post_meta($array[0],'post_paid_user',true);
+        $postData = $postData.",".$array[1];
+        update_post_meta($array[0],'post_paid_user',$postData);
+        update_post_meta($array[0],'paid_qrcode_cache','0');
+        echo "ok";
+      }else{
+        echo "off";
+      }
       exit();
    }
 }
+function ptva_checkSign($array){
+    $key = get_option('ptva_merchant_key');
+    $old_sign = $array['sign'];
+    unset($array['sign']);
+    ksort($array);
 
+    $new_sign = strtoupper(md5(urldecode(http_build_query($array)).'&key='.$key));
+    if ($old_sign == $new_sign){
+        return true;
+    }else{
+        return false;
+    }
+}
 /**
  * Add Init Meta To every post
  */
