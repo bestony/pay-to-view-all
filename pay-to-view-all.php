@@ -52,6 +52,7 @@ if ($_POST['update_options']=='true') {//若提交了表单，则保存变量
     update_option('ptva_post_fee', $_POST['ptva_post_fee']);
     update_option('ptva_summary_number', $_POST['ptva_summary_number']);
     update_option('ptva_mode', $_POST['ptva_mode']);
+    check_admin_referer( 'pay_to_view_all_field' );
     echo '<div id="message" class="updated below-h2"><p>设置保存成功!</p></div>';//保存完毕显示文字提示
 }
 $mode = get_option('ptva_mode')?get_option('ptva_mode'):"white";
@@ -59,6 +60,7 @@ $mode = get_option('ptva_mode')?get_option('ptva_mode'):"white";
 ?>
 <form method="POST" action="">
     <input type="hidden" name="update_options" value="true" />
+    <?php wp_nonce_field( 'pay_to_view_all_field' );?>
     <table class="form-table">
             <tr>
                 <th scope="row">模式:</th>
