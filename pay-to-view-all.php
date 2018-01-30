@@ -52,11 +52,12 @@ if ($_POST['update_options']=='true') {//若提交了表单，则保存变量
     update_option('ptva_post_fee', sanitize_text_field($_POST['ptva_post_fee']));
     update_option('ptva_summary_number', sanitize_text_field($_POST['ptva_summary_number']));
     update_option('ptva_mode', sanitize_text_field($_POST['ptva_mode']));
+    update_option('ptva_order_prefix',sanitize_text_field($_POST['ptva_order_prefix']));
     wp_verify_nonce( $_POST['pay_to_view_all_field'] );
     echo '<div id="message" class="updated below-h2"><p>设置保存成功!</p></div>';//保存完毕显示文字提示
 }
 $mode = get_option('ptva_mode')?get_option('ptva_mode'):"white";
-//下面开始界面表单
+$prefix = get_option('ptva_order_prefix')?get_option('ptva_order_prefix'):"pay_to_view_all";
 ?>
 <form method="POST" action="">
     <input type="hidden" name="update_options" value="true" />
@@ -86,6 +87,10 @@ $mode = get_option('ptva_mode')?get_option('ptva_mode'):"white";
             <tr>
                 <th scope="row">截断长短（单位为字，建议200-300）:</th>
                 <td><input type="text" name="ptva_summary_number" id="ptva_summary_number" value="<?php esc_attr_e(get_option('ptva_summary_number')); ?>" /></td>
+            </tr>
+            <tr>
+                <th scope="row">订单前缀（仅支持英文）:</th>
+                <td><input type="text" name="ptva_order_prefix" id="ptva_order_prefix" value="<?php esc_attr_e($prefix); ?>" /></td>
             </tr>
     </table>
     <p><input type="submit" class="button-primary" name="admin_options" value="保存配置"/></p>
@@ -147,6 +152,7 @@ function ptva_request_qrcode($id,$user){
     $mkey = get_option('ptva_merchant_key');
     $amount = get_option('ptva_post_fee');
     $path = get_site_url()."/pay_to_view_all";
+    $prefix = get_option('ptva_order_prefix');
     $payjs = new Payjs([
         'merchantid' => $mid,
         'merchantkey' => $mkey,
@@ -154,7 +160,7 @@ function ptva_request_qrcode($id,$user){
         'toobject' => true
     ]);
 
-    $order_id = 'pay_to_view_all'.$id.'_'.time();
+    $order_id = $prefix.'_'.$id.'_'.time();
     $order_title ='付费阅读_'.get_the_title($id);
     $attach = $id ."+".$user;
 
