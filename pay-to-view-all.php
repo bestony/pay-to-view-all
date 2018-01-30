@@ -51,7 +51,7 @@ if ($_POST['update_options']=='true') {//若提交了表单，则保存变量
     update_option('ptva_merchant_key', sanitize_text_field($_POST['ptva_merchant_key']));
     update_option('ptva_post_fee', sanitize_text_field($_POST['ptva_post_fee']));
     update_option('ptva_summary_number', sanitize_text_field($_POST['ptva_summary_number']));
-    update_option('ptva_mode', $_POST['ptva_mode']);
+    update_option('ptva_mode', sanitize_text_field($_POST['ptva_mode']));
     wp_verify_nonce( $_POST['pay_to_view_all_field'] );
     echo '<div id="message" class="updated below-h2"><p>设置保存成功!</p></div>';//保存完毕显示文字提示
 }
@@ -80,11 +80,11 @@ $mode = get_option('ptva_mode')?get_option('ptva_mode'):"white";
                 <td><input type="text" name="ptva_merchant_key" id="ptva_merchant_key" value="<?php esc_attr_e(get_option('ptva_merchant_key')); ?>" /></td>
             </tr>
             <tr>
-                <th scope="row">文章单价:</th>
+                <th scope="row">文章单价(单位为分，最小值为1):</th>
                 <td><input type="text" name="ptva_post_fee" id="ptva_post_fee" value="<?php esc_attr_e(get_option('ptva_post_fee')); ?>" /></td>
             </tr>
             <tr>
-                <th scope="row">截断长短:</th>
+                <th scope="row">截断长短（单位为字，建议200-300）:</th>
                 <td><input type="text" name="ptva_summary_number" id="ptva_summary_number" value="<?php esc_attr_e(get_option('ptva_summary_number')); ?>" /></td>
             </tr>
     </table>
@@ -198,7 +198,7 @@ add_action('init', 'ptva_pay_check');
 function ptva_pay_check() {
    if($_SERVER["REQUEST_URI"] == '/pay_to_view_all') {
       if(ptva_checkSign($_POST)){
-        $query_string =  $_POST['attach'];
+        $query_string =  sanitize_text_field($_POST['attach']);
         $array = explode("+",$query_string);
 
         $postData = get_post_meta($array[0],'post_paid_user',true);
