@@ -105,18 +105,21 @@ $prefix = get_option('ptva_order_prefix')?get_option('ptva_order_prefix'):"pay_t
 function ptva_prevent_unpay_user( $content ) {
     $summary_number = get_option('ptva_summary_number');
     $mode = get_option('ptva_mode');
+    $user_id = get_current_user_id();
     if ($mode == 'white'){
         if(is_home()){
             return wp_trim_words($content,$summary_number,"...<hr>请<strong><a href='/wp-login.php'>登陆</a></strong>并支付后查看更多内容");
         }else{
             if(is_user_logged_in()){
-                if(ptva_check_user_pay()){
+
+                if(ptva_check_user_pay() || $user_id == 1){
                     return $content;
                 }else{
                     return wp_trim_words($content,$summary_number,"...<hr>".ptva_get_qrcode()."");
                 }
+
             }else{
-                return wp_trim_words($content,$summary_number,"...<hr>请<strong><a href='/wp-login.php'>登陆</a></strong>并支付后查看更多内容");
+                return wp_trim_words($content,$summary_number,"...<hr>请<strong>支付</strong>后查看更多内容");
             }
 
         }
