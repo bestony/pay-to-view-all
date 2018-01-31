@@ -164,7 +164,7 @@ function ptva_request_qrcode($id,$user){
     ]);
 
     $order_id = $prefix.'_'.$id.'_'.time();
-    $order_title ='付费阅读_'.get_the_title($id);
+    $order_title ='付费阅读-文章编号：'.($id);
     $attach = $id ."+".$user;
 
     $image = $payjs->QRPay($order_id,$amount,$order_title,$attach)->qrcode;
