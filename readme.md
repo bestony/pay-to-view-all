@@ -11,9 +11,11 @@ Pay to view All 本插件实现了 WordPress 的付费阅读功能。插件依�
 
 前往 http://demo.ixiqin.com 注册账户，并支付默认文章的费用，阅读文章。
 
+
 ## 如何使用？
 想要安装并使用本插件，你可以参考[安装指引](https://github.com/bestony/pay-to-view-all/wiki/Install)
 
+此外，提供了视频版本的使用说明，你可以参考[视频教程](https://github.com/bestony/pay-to-view-all/wiki/Video-Tutorial)
 
 ## 协议
 本项目代码基于 [GNU General Public License v2 (or later)](LICENSE) 开源。
