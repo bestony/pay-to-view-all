@@ -126,24 +126,18 @@ class Payjs
      * curl
     */
     protected static function Curl($Url,$Arrry,$Coded){
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $Url);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $Arrry);
-        $cexecute = curl_exec($ch);
-        curl_close($ch);
 
-        if($cexecute){
-            if($Coded){
-                return json_decode($cexecute);
-            }else{
-                return $cexecute;
-            }
-        }else{
+        $response = wp_remote_post( $Url,array(
+            "body" => $Arrry
+        ) );
+        if ( is_wp_error( $response ) ) {
             return false;
-        }
+         } else {
+            if($Coded){
+                return json_decode($response['body']);
+            }else{
+                return $response['body'];
+            }
+         }
     }
 }
