@@ -131,8 +131,8 @@ add_filter( 'the_content', 'ptva_prevent_unpay_user' );
  */
 function ptva_check_user_pay(){
 
-    $id = get_the_ID();
-    $user = get_current_user_id();
+        $id = get_the_ID();
+        $user = get_current_user_id();
     $postData = get_post_meta($id,'post_paid_user',true);
     $userArray = explode(",",$postData);
 
@@ -191,10 +191,11 @@ function ptva_get_qrcode(){
     }
 
     if ($image == ''){
-        return "数据设置错误！";
+        update_post_meta($id,'paid_qrcode_cache_'.$user,'0');
+        return ptva_get_qrcode();
     }
 
-    return '<div style="text-align:center"><P>支付查看剩下的内容</p><img src="'.$image.'" alt="付费码"><P>支付完成后，刷新页面即可查看全文。</p></div>';
+    return '<div id="ptva_secure_area" data-id="'.$id.'" data-user="'.$user.'" style="text-align:center"><P>支付查看剩下的内容</p><img src="'.$image.'" alt="付费码"><P>支付完成后，刷新页面即可查看全文。</p></div>';
 }
 
 /**
@@ -210,7 +211,7 @@ function ptva_pay_check() {
         $postData = get_post_meta($array[0],'post_paid_user',true);
         $postData = $postData.",".$array[1];
         update_post_meta($array[0],'post_paid_user',$postData);
-        update_post_meta($array[0],'paid_qrcode_cache','0');
+        update_post_meta($array[0],'paid_qrcode_cache_'.$array[1],'0');
         echo "ok";
       }else{
         echo "off";
